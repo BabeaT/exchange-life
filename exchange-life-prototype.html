@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>交换人生 · HTML 原型</title>
+  <style>
+    :root{--bg:#f3f0ea;--paper:#faf8f3;--blue:#cad5d6;--pink:#d9bdbd;--purple:#bdb4c3;--sage:#adb89f;--ochre:#c4a277;--brown:#6b5548;--text:#46403c;--muted:#7a716b;--line:rgba(107,85,72,.16)}
+    *{box-sizing:border-box}body{margin:0;color:var(--text);font-family:system-ui,"Microsoft YaHei",sans-serif;background:var(--bg);background-image:radial-gradient(rgba(80,66,57,.05) .7px,transparent .7px);background-size:5px 5px}button,input,textarea{font:inherit;color:inherit}button{cursor:pointer}h1,h2,h3{font-family:"Songti SC",serif;font-weight:500}p{color:var(--muted);line-height:1.8}a{color:inherit}.shell{min-height:100vh;padding-left:220px}.top{height:66px;position:fixed;z-index:20;inset:0 0 auto;display:flex;align-items:center;padding:0 26px;border-bottom:1px solid var(--line);background:rgba(243,240,234,.92);backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:10px;font-family:"Songti SC",serif}.brand i{width:34px;height:34px;display:grid;place-items:center;border-radius:48% 52% 44% 56%;background:var(--brown);color:white;font-style:normal}.top small{margin-left:auto;padding:4px 10px;border-radius:99px;background:rgba(196,162,119,.2)}.side{position:fixed;z-index:15;left:0;top:66px;bottom:0;width:220px;padding:30px 17px;border-right:1px solid var(--line);background:rgba(239,235,227,.78)}.side p{font-family:"Songti SC",serif;font-size:.84rem;padding:0 12px 20px}.side button{width:100%;border:0;border-radius:11px;background:none;text-align:left;padding:10px 13px;margin:2px 0;color:var(--muted)}.side button.active{background:var(--paper);color:var(--brown);font-weight:700;box-shadow:0 6px 20px rgba(70,60,54,.06)}main{padding-top:66px}.screen{display:none;max-width:1220px;margin:auto;padding:56px 48px 100px}.screen.active{display:block;animation:in .35s ease}@keyframes in{from{opacity:0;transform:translateY(8px)}}.eyebrow{display:block;font-size:.72rem;letter-spacing:.16em;color:var(--brown);font-weight:700}.heading{max-width:760px;margin-bottom:38px}.heading h1{font-size:clamp(2.2rem,4vw,3.8rem);margin:.35rem 0}.panel{padding:25px;border:1px solid var(--line);border-radius:22px;background:rgba(250,248,243,.94);box-shadow:0 15px 45px rgba(75,60,50,.07)}.button{border:0;border-radius:99px;padding:11px 20px;font-weight:700}.primary{background:var(--brown);color:white}.secondary{background:var(--paper);border:1px solid var(--line)}.grid{display:grid;gap:15px}.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}.choice{position:relative;min-height:140px;text-align:left;border:1px solid var(--line);border-radius:19px;background:var(--paper);padding:22px}.choice.selected{border:2px solid var(--brown)}.choice strong{display:block;font-family:"Songti SC",serif;font-size:1.15rem}.choice small{color:var(--muted)}.step{margin:32px 0}.step h2{font-size:1.3rem}.summary{margin-top:18px;background:linear-gradient(110deg,rgba(202,213,214,.4),var(--paper))}.actions{display:flex;justify-content:flex-end;gap:9px;margin-top:26px}.field{display:block;margin-bottom:14px}.field span{display:block;font-size:.8rem;font-weight:700;margin-bottom:6px}.field input,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fffefa}.field textarea{min-height:120px;resize:vertical}.event{max-width:760px;margin:auto;background:#fffdf8}.event h2{font-size:1.8rem}.privacy{padding:12px 15px;border-radius:12px;background:rgba(202,213,214,.3);font-size:.82rem}.editor-layout{display:grid;grid-template-columns:1fr 290px;gap:18px}.editor textarea{width:100%;height:380px;border:0;outline:0;resize:vertical;background:transparent;font-family:"Songti SC",serif;font-size:1rem;line-height:2;padding:12px}.tabs{display:flex;border-bottom:1px solid var(--line);margin:-25px -25px 18px}.tabs button{border:0;background:none;padding:14px 20px}.tabs button.active{border-bottom:2px solid var(--brown)}.save{display:flex;justify-content:space-between;color:var(--muted);font-size:.72rem;border-top:1px solid var(--line);padding-top:12px}.companion{text-align:center}.blob{position:relative;width:86px;height:100px;margin:14px auto;border-radius:48% 52% 43% 57%;background:var(--purple)}.blob:before,.blob:after{content:"";position:absolute;top:42%;width:5px;height:5px;border-radius:50%;background:#3e3936}.blob:before{left:38%}.blob:after{right:38%}.bubble{display:none;text-align:left;margin-top:14px;padding:14px;border-radius:14px;background:var(--bg)}.bubble.show{display:block}.letter{max-width:720px;margin:auto;padding:55px;background:#fffdf8;border:1px solid var(--line);box-shadow:0 25px 70px rgba(65,50,42,.12)}.letter header{text-align:center}.illustration{height:250px;position:relative;overflow:hidden;margin:24px 0;border-radius:18px;background:linear-gradient(155deg,#d7dedd,#eadedc 60%,#efe5d9)}.illustration .moon{position:absolute;right:18%;top:15%;width:45px;height:45px;border-radius:50%;background:rgba(255,253,248,.8)}.illustration .house{position:absolute;left:35%;bottom:20%;width:95px;height:70px;background:#9d8a7e;clip-path:polygon(50% 0,90% 32%,90% 100%,10% 100%,10% 32%)}.illustration .light{position:absolute;left:calc(35% + 55px);bottom:26%;width:14px;height:20px;background:#edcd8f;box-shadow:0 0 24px #f1cf8e}.illustration:after{content:"";position:absolute;left:-10%;right:-10%;bottom:-25%;height:45%;border-radius:50%;background:rgba(250,248,243,.75)}.letter article{font-family:"Songti SC",serif;font-size:1.05rem;line-height:2.15}.reaction{border:1px solid var(--line);background:var(--paper);border-radius:45% 55% 48% 52%;min-height:150px}.reaction.selected{border:2px solid var(--brown);transform:translateY(-3px)}.reaction span{display:block;font-size:2rem}.views{display:grid;grid-template-columns:1fr 150px 1fr;gap:18px;align-items:center}.view{border-top:5px solid var(--blue)}.view:last-child{border-color:var(--pink)}.view blockquote{font-family:"Songti SC",serif;margin:18px 0 0;padding:12px;border-left:2px solid var(--ochre);background:var(--bg)}.middle{text-align:center}.middle i{display:block;height:100px;border-left:1px dashed var(--brown);margin:12px auto;width:1px}.tree-wrap{position:relative;height:540px;border-radius:28px;overflow:hidden;background:linear-gradient(160deg,#dce1df,#eee4df 65%,#eee4d5)}.crown{position:absolute;top:8%;width:44%;height:48%;border-radius:48% 52% 45% 55%;background:rgba(173,184,159,.75)}.crown.a{left:15%}.crown.b{right:14%;background:rgba(189,180,195,.68)}.trunk{position:absolute;top:39%;bottom:15%;width:40px;border-radius:50% 50% 20% 20%;background:#947a65}.trunk.a{left:46%;transform:rotate(5deg)}.trunk.b{right:46%;transform:rotate(-5deg)}.soil{position:absolute;left:-5%;right:-5%;bottom:-15%;height:35%;border-radius:50%;background:rgba(196,162,119,.35)}.fruit{position:absolute;left:41%;top:21%;width:45px;height:50px;border-radius:50% 50% 44% 56%;border:0;background:var(--pink);box-shadow:0 0 0 8px rgba(255,255,255,.22)}.tree-note{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);padding:8px 14px;border-radius:99px;background:var(--paper)}.water{margin-top:16px;display:flex;align-items:center;gap:18px}.water div:nth-child(2){flex:1}.toast{position:fixed;right:24px;bottom:24px;z-index:50;padding:12px 17px;border-radius:12px;background:var(--brown);color:white;display:none}.toast.show{display:block}.prototype-note{position:fixed;right:18px;top:80px;z-index:25;padding:7px 11px;border-radius:99px;background:var(--ochre);color:white;font-size:.7rem}@media(max-width:850px){.shell{padding-left:0}.side{position:static;width:auto;padding:80px 15px 10px;display:flex;overflow:auto;border-right:0}.side p{display:none}.side button{width:auto;white-space:nowrap}.screen{padding:35px 20px 80px}.editor-layout,.grid.two,.grid.three,.views{grid-template-columns:1fr}.middle i{height:30px}.prototype-note{display:none}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+    .brand-heading{max-width:min(88vw,920px)}.brand-heading h1{font-size:clamp(2.4rem,8.5vw,8.8rem);line-height:1.1;white-space:nowrap;word-break:keep-all;overflow-wrap:normal}.brand-statement{font-family:"Songti SC",serif;font-size:clamp(.96rem,1.3vw,1.25rem);line-height:2}.brand-statement span{display:block;word-break:keep-all}
+  </style>
+</head>
+<body>
+  <div class="top"><div class="brand"><i>交</i><span>交换人生</span></div><small>独立 HTML 原型</small></div>
+  <div class="prototype-note">无需安装依赖 · 可直接打开</div>
+  <div class="shell">
+    <nav class="side" aria-label="原型页面导航">
+      <p>把各自看见的，轻轻交给彼此。</p>
+      <button class="active" data-screen="entry">品牌入口</button>
+      <button data-screen="create">创建交换</button>
+      <button data-screen="event">事件线索卡</button>
+      <button data-screen="write">独立表达</button>
+      <button data-screen="letter">图文信件</button>
+      <button data-screen="reaction">情感回应</button>
+      <button data-screen="intersection">视角交汇</button>
+      <button data-screen="tree">记忆树</button>
+    </nav>
+    <main>
+      <section class="screen active" id="entry">
+        <div class="heading brand-heading"><span class="eyebrow">双人叙事 · 延迟交换 · 共同记忆</span><h1>交换人生</h1><p class="brand-statement"><span>我的话语，一半毫无意义；</span><span>但我说出来，<wbr>是为了让另一半能够抵达你。</span></p></div>
+        <div class="illustration" style="height:360px"><span class="moon"></span><span class="house"></span><span class="light"></span></div>
+        <div class="actions"><button class="button primary next">推开门，慢慢说 →</button></div>
+      </section>
+
+      <section class="screen" id="create">
+        <div class="heading"><span class="eyebrow">创建一次交换</span><h1>这一次，想怎样把故事交给对方？</h1><p>内容和方式是两个独立维度，四种组合都可以自由选择。</p></div>
+        <div class="step"><h2>01 · 想交换什么？</h2><div class="grid two" data-group="story"><button class="choice selected" data-value="共同事件"><strong>共同经历的一件事</strong><small>重新讲述你们都曾在场的一段经历</small></button><button class="choice" data-value="人生片段"><strong>各自人生的一段故事</strong><small>沿着同一主题，交换不同的人生片段</small></button></div></div>
+        <div class="step"><h2>02 · 想怎样交给对方？</h2><div class="grid two" data-group="mode"><button class="choice selected" data-value="双方独立表达"><strong>我们都写下自己的版本</strong><small>彼此独立完成，都寄出后同时看见</small></button><button class="choice" data-value="我先告诉对方"><strong>我想先把这一段告诉 TA</strong><small>对方可以回应，也可以以后回信</small></button></div></div>
+        <div class="panel summary"><span class="eyebrow">当前组合</span><h3 id="combo">共同事件 × 双方独立表达</h3><p>双方会在彼此不可见的空间完成表达，先寄出的信由系统托管。</p></div>
+        <div class="actions"><button class="button primary next">继续填写线索 →</button></div>
+      </section>
+
+      <section class="screen" id="event">
+        <div class="heading"><span class="eyebrow">共同事件线索卡</span><h1>让对方知道，你说的是哪一件事</h1><p>只写中性的时间、地点和线索。你的感受留在自己的表达里。</p></div>
+        <div class="panel event"><label class="field"><span>事件名称</span><input value="那个冬至的晚饭" /></label><div class="grid two"><label class="field"><span>大致时间</span><input value="很多年前的冬至前后" /></label><label class="field"><span>大致地点</span><input value="家里的厨房和门口" /></label></div><label class="field"><span>相关人物</span><input value="丹青、林夏和家人" /></label><label class="field"><span>事件线索</span><textarea>一顿没来得及好好吃完的晚饭，门口亮着一盏灯。</textarea></label><label class="field"><span>想一起回看的原因</span><textarea>想重新看看，那天我们各自记住了什么。</textarea></label><div class="privacy">这张卡只帮助对方认出事件，不预先判断谁对谁错。</div></div>
+        <div class="actions"><button class="button secondary" onclick="notice('事件卡预览已生成')">预览并确认</button><button class="button primary next">开始表达 →</button></div>
+      </section>
+
+      <section class="screen" id="write">
+        <div class="heading"><span class="eyebrow">仅自己可见</span><h1>写下你的版本</h1><p>文字、语音和图片可以自由组合。这里的原始内容不会自动交给对方。</p></div>
+        <div class="editor-layout"><div class="panel editor"><div class="tabs"><button class="active">文字</button><button onclick="notice('模拟录音：没关系，慢慢来，我在听')">语音</button><button onclick="notice('模拟图片已加入，仅本人可见')">图片</button></div><textarea id="draft">我一直记得那个冬至。厨房的玻璃蒙着水汽，你在桌边一只一只地摆碗。我那时忙着收拾行李，以为自己没有回头。后来才发现，我记住的不是离开，而是门口那盏一直亮着的灯。</textarea><div class="save"><span id="save">已自动保存 · 刚刚</span><span id="count">84 字</span></div></div><aside class="panel companion"><span class="eyebrow">AI 安静陪伴</span><div class="blob"></div><p>需要时再叫我，不会打断你的表达。</p><button class="button secondary" id="wake">模拟停顿 10–15 分钟</button><div class="bubble" id="bubble"><strong>需要我陪你理一理吗？</strong><p>你写到了那顿晚饭、离开前的灯，还有后来才明白的事情。</p></div></aside></div>
+        <div class="actions"><button class="button secondary" onclick="notice('草稿已保存，可以以后继续')">先停在这里</button><button class="button primary next" onclick="notice('AI 整理完成，仍需本人确认')">本人确认并生成信件 →</button></div>
+      </section>
+
+      <section class="screen" id="letter">
+        <div class="heading"><span class="eyebrow">收信人视角预览</span><h1>门口那盏灯</h1><p>插图是叙事想象；对方只会看到本人确认后的正式版本。</p></div>
+        <div class="letter"><header><span class="eyebrow">丹青写给林夏的一封信</span><h2>门口那盏灯</h2></header><div class="illustration"><span class="moon"></span><span class="house"></span><span class="light"></span></div><article>我一直记得那个冬至。厨房的玻璃蒙着水汽，你在桌边一只一只地摆碗。那时我忙着收拾行李，以为自己没有回头。后来才明白，我记住的不是离开，而是门口那盏一直亮着的灯。具体是哪一年，我已经记不太清了。</article><p style="font-size:.72rem;border-top:1px solid var(--line);padding-top:15px;margin-top:35px">叙事插图 · 非真实影像　|　只包含寄信人确认公开的内容</p></div>
+        <div class="actions"><button class="button secondary" onclick="notice('朗读由用户主动开启')">▷ 听这封信</button><button class="button primary next" onclick="notice('信件已寄出并模拟送达')">确认寄出 →</button></div>
+      </section>
+
+      <section class="screen" id="reaction">
+        <div class="heading"><span class="eyebrow">不用急着说很多</span><h1>你想怎样收下这封信？</h1><p>选择一个专属动作。它不是聊天，也不会形成无限消息流。</p></div>
+        <div class="grid three" id="reactions"><button class="reaction"><span>◡</span>我收到了</button><button class="reaction"><span>··</span>我在听</button><button class="reaction"><span>⌒</span>轻轻抱住</button><button class="reaction"><span>…</span>我想再想一想</button><button class="reaction"><span>✦</span>谢谢你告诉我</button></div>
+        <div class="actions"><button class="button secondary" onclick="notice('可以稍后再决定是否回信')">暂时不回应</button><button class="button primary next" onclick="notice('回应已经轻轻抵达')">发送回应 →</button></div>
+      </section>
+
+      <section class="screen" id="intersection">
+        <div class="heading"><span class="eyebrow">同一件事的两个视角</span><h1>那顿没吃完的冬至晚饭</h1><p>只读取双方正式公开的信件，不裁判，不替任何一方化解什么。</p></div>
+        <div class="views"><div class="panel view"><span class="eyebrow">丹青的视角</span><h2>她记住了门口的灯</h2><p>离开时，她以为自己没有回头。很多年后，那盏灯成了那晚最清楚的记忆。</p><blockquote>“我记住的不是离开，而是门口那盏一直亮着的灯。”</blockquote></div><div class="middle"><span>共同记得</span><strong>冬至 · 厨房 · 晚饭</strong><i></i></div><div class="panel view"><span class="eyebrow">林夏的视角</span><h2>她记住了窗边的汤</h2><p>她没有挽留，因为怕耽误那班车。门关上后，多盛的一碗汤慢慢凉了。</p><blockquote>“我把多盛的那碗汤放在窗边。”</blockquote></div></div>
+        <div class="panel summary"><h3>可以一起留下的部分</h3><p>一个人把“没有挽留”理解为体谅，另一个人多年后才看见那份没有说出口的等待。两个版本都完整存在。</p></div>
+        <div class="actions"><button class="button secondary" onclick="notice('问题反馈已记录，原信保持不变')">这里有不准确的地方</button><button class="button primary next">保存共同记忆 →</button></div>
+      </section>
+
+      <section class="screen" id="tree">
+        <div class="heading"><span class="eyebrow">丹青与林夏的记忆树</span><h1>共享同一片土壤，仍然各自生长</h1><p>这里没有打卡、积分、排行榜或枯萎惩罚。</p></div>
+        <div class="tree-wrap"><span class="crown a"></span><span class="crown b"></span><span class="trunk a"></span><span class="trunk b"></span><span class="soil"></span><button class="fruit" onclick="notice('打开记忆碎片：那个冬至的晚饭')" aria-label="打开冬至晚饭记忆"></button><span class="tree-note">冬至晚饭 · 共同记忆 001</span></div>
+        <div class="panel water"><div class="blob" style="width:55px;height:65px;margin:0"></div><div><h3 id="water-title">要为这段记忆浇一点水吗？</h3><p>浇水是轻量照料，不产生任务或回复义务。</p></div><button class="button primary" id="water">轻轻浇水</button></div>
+      </section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status"></div>
+  <script>
+    const screens=[...document.querySelectorAll('.screen')];const nav=[...document.querySelectorAll('.side button')];let current=0;
+    function show(id){screens.forEach((s,i)=>{s.classList.toggle('active',s.id===id);if(s.id===id)current=i});nav.forEach(b=>b.classList.toggle('active',b.dataset.screen===id));scrollTo({top:0,behavior:'smooth'})}
+    nav.forEach(b=>b.addEventListener('click',()=>show(b.dataset.screen)));document.querySelectorAll('.next').forEach(b=>b.addEventListener('click',()=>show(screens[Math.min(current+1,screens.length-1)].id)));
+    document.querySelectorAll('[data-group]').forEach(group=>group.querySelectorAll('.choice').forEach(button=>button.addEventListener('click',()=>{group.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));button.classList.add('selected');const story=document.querySelector('[data-group=story] .selected').dataset.value;const mode=document.querySelector('[data-group=mode] .selected').dataset.value;document.getElementById('combo').textContent=story+' × '+mode})));
+    const draft=document.getElementById('draft');draft.addEventListener('input',()=>{document.getElementById('count').textContent=draft.value.length+' 字';document.getElementById('save').textContent='正在保存…';setTimeout(()=>document.getElementById('save').textContent='已自动保存 · 刚刚',450)});
+    document.getElementById('wake').addEventListener('click',()=>document.getElementById('bubble').classList.toggle('show'));
+    document.querySelectorAll('.reaction').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.reaction').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')}));
+    document.getElementById('water').addEventListener('click',e=>{e.target.disabled=true;e.target.textContent='已经浇过水';document.getElementById('water-title').textContent='一点照料已经留在根系里';notice('记忆不会因为没有浇水而枯萎')});
+    function notice(message){const toast=document.getElementById('toast');toast.textContent=message;toast.classList.add('show');clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>toast.classList.remove('show'),2200)}
+  </script>
+</body>
+</html>
