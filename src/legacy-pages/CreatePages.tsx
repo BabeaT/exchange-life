@@ -10,7 +10,24 @@ import { useDemo } from '../store/DemoContext'
 export function CreateExchangePage() {
   const { state, actions } = useDemo()
   const navigate = useNavigate()
-  return <div className="page create-page"><Link to="/home" className="back-link"><ArrowLeft size={16} /> 返回首页</Link><header className="page-heading"><span className="eyebrow">创建一次交换</span><h1>先决定这次想交换什么</h1><p>内容和方式是两个独立选择。任何一种故事，都可以慢慢互换，也可以由你先说。</p></header><ExchangeModeSelector narrativeType={state.exchange.narrativeType} method={state.exchange.method} onNarrative={narrativeType => actions.updateExchange({ narrativeType })} onMethod={method => actions.updateExchange({ method })} /><PaperPanel className="combination-preview"><span className="eyebrow">你正在创建</span><h3>{state.exchange.narrativeType === 'shared-event' ? '共同事件' : '人生片段'} × {state.exchange.method === 'independent' ? '双方独立表达' : '我先告诉对方'}</h3><p>{combinationCopy(state.exchange.narrativeType, state.exchange.method)}</p></PaperPanel><div className="sticky-actions"><span>下一步：{state.exchange.narrativeType === 'shared-event' ? '填写共同事件线索' : '选择人生主题'}</span><PrimaryButton onClick={() => navigate(state.exchange.narrativeType === 'shared-event' ? '/exchanges/new/event' : '/exchanges/new/theme')}>继续 <ArrowRight size={17} /></PrimaryButton></div></div>
+  return <div className="page create-page"><style>{`
+    .create-confirm-bar{margin-top:24px;display:flex;align-items:center;justify-content:space-between;gap:24px;background:linear-gradient(100deg,rgba(202,213,214,.34),rgba(250,248,243,.85));box-shadow:none}
+    .create-confirm-copy h3{margin:4px 0}.create-confirm-copy p{margin:0}.create-confirm-actions{display:flex;align-items:center;gap:16px;flex-shrink:0}.create-confirm-actions span{color:var(--muted);font-size:.86rem}
+    .create-page-heading{max-width:none;display:flex;align-items:flex-start;justify-content:space-between;gap:24px}
+    .create-page-heading>div{max-width:820px}.create-page-heading>a{flex-shrink:0}
+    @media(min-width:1280px){
+      .create-page{min-height:calc(100dvh - 68px);padding:24px 54px 26px;display:flex;flex-direction:column;gap:12px}
+      .create-page>.page-heading{margin:0}
+      .create-page>.page-heading h1{font-size:clamp(2.5rem,3.2vw,3.25rem);line-height:1.1;margin:.25rem 0 .55rem}
+      .create-page>.page-heading p{font-size:1rem;margin-bottom:0}
+      .create-page .choice-dimensions{gap:12px}
+      .create-page .choice-dimensions legend{margin-bottom:8px;font-size:1.18rem}
+      .create-page .choice-card{min-height:110px;padding:18px 22px 18px 56px;gap:4px}
+      .create-page .choice-radio{top:18px}
+      .create-page .create-confirm-bar{min-height:78px;margin-top:auto;padding:12px 16px 12px 22px}
+    }
+    @media(max-width:720px){.create-page-heading,.create-confirm-bar,.create-confirm-actions{align-items:stretch;flex-direction:column}.create-page-heading>a{align-self:flex-start}.create-confirm-actions .button{width:100%}}
+  `}</style><header className="page-heading create-page-heading"><div><h1>先决定这次想交换什么</h1><p>内容和方式是两个独立选择。任何一种故事，都可以慢慢互换，也可以由你先说。</p></div><Link to="/join"><SecondaryButton>已有邀请码？输入邀请码</SecondaryButton></Link></header><ExchangeModeSelector narrativeType={state.exchange.narrativeType} method={state.exchange.method} onNarrative={narrativeType => actions.updateExchange({ narrativeType })} onMethod={method => actions.updateExchange({ method })} /><PaperPanel className="create-confirm-bar"><div className="create-confirm-copy"><span className="eyebrow">你正在创建</span><h3>{state.exchange.narrativeType === 'shared-event' ? '共同事件' : '人生片段'} × {state.exchange.method === 'independent' ? '双方独立表达' : '我先告诉对方'}</h3><p>{combinationCopy(state.exchange.narrativeType, state.exchange.method)}</p></div><div className="create-confirm-actions"><span>下一步：{state.exchange.narrativeType === 'shared-event' ? '填写共同事件线索' : '选择人生主题'}</span><PrimaryButton onClick={() => navigate(state.exchange.narrativeType === 'shared-event' ? '/exchanges/new/event' : '/exchanges/new/theme')}>继续 <ArrowRight size={17} /></PrimaryButton></div></PaperPanel></div>
 }
 
 function combinationCopy(type: 'shared-event' | 'life-fragment', method: 'independent' | 'tell-first') {
@@ -23,7 +40,24 @@ function combinationCopy(type: 'shared-event' | 'life-fragment', method: 'indepe
 export function EventContextPage() {
   const navigate = useNavigate()
   const [confirmed, setConfirmed] = useState(false)
-  return <div className="page context-page"><Link to="/exchanges/new" className="back-link"><ArrowLeft size={16} /> 返回选择</Link><header className="page-heading"><span className="eyebrow">共同事件线索卡</span><h1>让对方知道，你说的是哪一件事</h1><p>只写中性的时间、地点和线索。你的感受留在自己的表达里。</p></header><div className="context-layout"><EventCard /><aside><PaperPanel><h3>这张卡会怎样被使用？</h3><ol><li>由你填写并确认</li><li>对方加入后只能阅读</li><li>双方的私人表达互不可见</li><li>不会把单方判断整理成共同事实</li></ol></PaperPanel><PaperPanel className="material-drop"><Clipboard size={22} /><strong>可选补充材料</strong><p>加入图片只帮助对方辨认事件，默认不会进入最终信件。</p><SecondaryButton>选择一张图片</SecondaryButton></PaperPanel></aside></div>{confirmed && <StatusBanner tone="success">事件卡已由你确认。对方看到的是这一版中性线索。</StatusBanner>}<div className="sticky-actions"><SecondaryButton onClick={() => setConfirmed(true)}><Check size={17} /> 预览并确认</SecondaryButton><PrimaryButton disabled={!confirmed} onClick={() => navigate('/exchanges/new/review')}>继续创建 <ArrowRight size={17} /></PrimaryButton></div></div>
+  return <div className="page context-page event-context-page"><style>{`
+    @media(min-width:1280px) and (min-height:820px){
+      .event-context-page{min-height:calc(100dvh - 68px);padding:20px 44px 18px;display:flex;flex-direction:column}
+      .event-context-page>.back-link{align-self:flex-start}
+      .event-context-page>.page-heading{width:100%;max-width:none;margin:10px 0 14px}
+      .event-context-page>.page-heading h1{width:100%;max-width:none;white-space:nowrap;font-size:clamp(38px,3.2vw,52px);line-height:1.12;letter-spacing:-.04em;margin:4px 0 5px}
+      .event-context-page>.page-heading p{font-size:.96rem;margin:0}
+      .event-context-page .event-card{width:min(820px,100%);margin:20px auto 0;padding:30px 34px 24px;display:grid;grid-template-columns:1fr 1fr;column-gap:16px;align-content:start}
+      .event-context-page .event-card>.eyebrow,.event-context-page .event-field-clue,.event-context-page .privacy-note,.event-context-page .event-card-actions,.event-context-page .status-banner{grid-column:1/-1}
+      .event-context-page .event-card .field{gap:5px;margin-bottom:12px}
+      .event-context-page .event-card input,.event-context-page .event-card textarea{padding:9px 12px}
+      .event-context-page .event-card textarea{min-height:84px;height:84px;resize:vertical}
+      .event-context-page .privacy-note{margin-top:0;line-height:1.45}
+      .event-context-page .status-banner{margin-top:10px;padding:7px 12px}
+      .event-context-page .event-card-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+    }
+    @media(max-width:720px){.event-context-page .event-card-actions{display:flex;flex-direction:column;gap:10px}.event-context-page .event-card-actions .button{width:100%}}
+  `}</style><Link to="/exchanges/new" className="back-link"><ArrowLeft size={16} /> 返回选择</Link><header className="page-heading"><span className="eyebrow">共同事件线索卡</span><h1>让对方知道，你说的是哪一件事</h1><p>只填写时间、地点和大致经过，感受留在自己的表达里。</p></header><EventCard compactForm>{confirmed && <StatusBanner tone="success">事件卡已由你确认。对方看到的是这一版中性线索。</StatusBanner>}<div className="event-card-actions"><SecondaryButton onClick={() => setConfirmed(true)}><Check size={17} /> 预览并确认</SecondaryButton><PrimaryButton disabled={!confirmed} onClick={() => navigate('/exchanges/new/review')}>继续创建 <ArrowRight size={17} /></PrimaryButton></div></EventCard></div>
 }
 
 export function ThemeContextPage() {
@@ -49,12 +83,13 @@ export function CreateReviewPage() {
 export function InvitePage() {
   const { state, actions } = useDemo()
   const [copied, setCopied] = useState('')
+  const inviteLink = `${globalThis.location?.origin || 'http://localhost:3000'}/join?code=${state.exchange.code}`
   const copy = async (value: string, label: string) => {
     try { await navigator.clipboard.writeText(value) } catch { /* Demo may run without clipboard permission */ }
     setCopied(label); actions.toast(`${label}已复制`)
   }
   const text = `${state.users['user-a'].name} 想和你一起回看“${state.exchange.title}”。打开交换人生，输入邀请码 ${state.exchange.code}。不用急着回复，慢慢来。`
-  return <div className="page invite-page"><header className="page-heading inline-heading"><div><span className="eyebrow">交换已经创建</span><h1>把邀请交给熟悉的人</h1><p>这不是公开招募。请通过你们平时联系的方式，私下发给对方。</p></div><MessengerCharacter variant="moss" size="large" mood="carrying" /></header><div className="invite-layout"><PaperPanel className="invitation-card"><span className="eyebrow">邀请码</span><strong className="invite-code">{state.exchange.code}</strong><div className="invite-buttons"><PrimaryButton onClick={() => copy(state.exchange.code, '邀请码')}><Copy size={17} /> {copied === '邀请码' ? '已复制' : '复制邀请码'}</PrimaryButton><SecondaryButton onClick={() => copy(text, '邀请文案')}><Clipboard size={17} /> 复制邀请文案</SecondaryButton></div><button className="share-simulate" onClick={() => actions.toast('已打开模拟分享面板')}><Share2 size={17} /> 模拟分享到微信 / QQ</button></PaperPanel><PaperPanel className="invite-message"><span className="eyebrow">对方会看到</span><div className="message-preview"><span className="avatar-small">{state.users['user-a'].avatar}</span><p>{text}</p></div><div className="invite-link"><Link2 size={16} /><code>http://localhost:4173/join?code={state.exchange.code}</code></div></PaperPanel></div><PaperPanel className="join-status"><div><span className={`status-orb ${state.exchange.joined ? 'joined' : ''}`} /><div><strong>{state.exchange.joined ? '对方已经加入' : '正在等待对方加入'}</strong><small>{state.exchange.joined ? '你们可以分别开始表达了' : '对方不会看到你的草稿和具体进度'}</small></div></div>{state.exchange.joined ? <Link to={`/exchanges/${state.exchange.id}/write`}><PrimaryButton>开始我的表达</PrimaryButton></Link> : <div className="join-simulation"><SecondaryButton onClick={() => actions.updateExchange({ joined: true })}>模拟对方加入</SecondaryButton><button onClick={() => actions.toast('已生成新的演示邀请码')}><RefreshCcw size={15} /> 邀请失效 / 重新生成</button></div>}</PaperPanel></div>
+  return <div className="page invite-page"><header className="page-heading inline-heading"><div><span className="eyebrow">交换已经创建</span><h1>把邀请交给熟悉的人</h1><p>这不是公开招募。请通过你们平时联系的方式，私下发给对方。</p></div><MessengerCharacter variant="moss" size="large" mood="carrying" /></header><div className="invite-layout"><PaperPanel className="invitation-card"><span className="eyebrow">邀请码</span><strong className="invite-code">{state.exchange.code}</strong><div className="invite-buttons"><PrimaryButton onClick={() => copy(state.exchange.code, '邀请码')}><Copy size={17} /> {copied === '邀请码' ? '已复制' : '复制邀请码'}</PrimaryButton><SecondaryButton onClick={() => copy(text, '邀请文案')}><Clipboard size={17} /> 复制邀请文案</SecondaryButton></div><button className="share-simulate" onClick={() => actions.toast('已打开模拟分享面板')}><Share2 size={17} /> 模拟分享到微信 / QQ</button></PaperPanel><PaperPanel className="invite-message"><span className="eyebrow">对方会看到</span><div className="message-preview"><span className="avatar-small">{state.users['user-a'].avatar}</span><p>{text}</p></div><div className="invite-link"><Link2 size={16} /><code>{inviteLink}</code></div></PaperPanel></div><PaperPanel className="join-status"><div><span className={`status-orb ${state.exchange.joined ? 'joined' : ''}`} /><div><strong>{state.exchange.joined ? '对方已经加入' : '正在等待对方加入'}</strong><small>{state.exchange.joined ? '你们可以分别开始表达了' : '对方不会看到你的草稿和具体进度'}</small></div></div>{state.exchange.joined ? <Link to={`/exchanges/${state.exchange.id}/write`}><PrimaryButton>开始我的表达</PrimaryButton></Link> : <div className="join-simulation"><SecondaryButton onClick={() => actions.updateExchange({ joined: true })}>模拟对方加入</SecondaryButton><button onClick={() => actions.toast('已生成新的演示邀请码')}><RefreshCcw size={15} /> 邀请失效 / 重新生成</button></div>}</PaperPanel></div>
 }
 
 export function ContextReadPage() {

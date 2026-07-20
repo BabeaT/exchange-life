@@ -1,17 +1,18 @@
 import { ImagePlus, Mic, Pause, Play, RotateCcw, Sparkles, Square, Trash2, Upload } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useDemo } from '../store/DemoContext'
 import type { ExchangeMethod, NarrativeType, StoryMedia } from '../types'
 import { MessengerCharacter } from './characters'
 import { PrimaryButton, SecondaryButton, StatusBanner } from './ui'
 
-export function EventCard({ readonly = false }: { readonly?: boolean }) {
+export function EventCard({ readonly = false, compactForm = false, children }: { readonly?: boolean; compactForm?: boolean; children?: ReactNode }) {
   const { state, actions } = useDemo()
   const context = state.exchange.context
-  const fields = [
-    ['事件名称', 'title'], ['大致时间', 'time'], ['大致地点', 'place'], ['相关人物', 'people'], ['事件线索', 'clue'], ['想一起回看的原因', 'reason'],
-  ] as const
-  return <div className="event-card"><div className="card-pin" /><span className="eyebrow">共同事件线索卡</span><h2>{context.title || '还没有名字的那件事'}</h2>{fields.map(([label, key]) => readonly ? <div className="context-row" key={key}><span>{label}</span><p>{context[key] || '未填写'}</p></div> : <label className="field compact" key={key}><span>{label}</span>{key === 'clue' || key === 'reason' ? <textarea value={context[key]} onChange={e => actions.updateContext({ [key]: e.target.value })} /> : <input value={context[key]} onChange={e => actions.updateContext({ [key]: e.target.value })} />}</label>)}<small className="privacy-note">这张卡只帮助对方认出事件，不预先判断谁对谁错。</small></div>
+  const fields = compactForm
+    ? ([['事件发生的时间', 'time'], ['事件发生的地点', 'place'], ['事件的大致描述', 'clue']] as const)
+    : ([['事件名称', 'title'], ['模式', 'theme'], ['时间', 'time'], ['地点', 'place'], ['参与者', 'people'], ['事件范围', 'range'], ['事件线索', 'clue'], ['引导语', 'reason']] as const)
+  return <div className={`event-card ${compactForm ? 'event-card-compact' : ''}`}><div className="card-pin" />{!compactForm && <><span className="eyebrow">事件指引卡</span><h2>{context.title || '还没有名字的那件事'}</h2></>}{fields.map(([label, key]) => readonly ? <div className="context-row" key={key}><span>{label}</span><p>{context[key] || '未填写'}</p></div> : <label className={`field compact event-field-${key}`} key={key}><span>{label}</span>{key === 'clue' || key === 'reason' || key === 'range' ? <textarea value={context[key]} onChange={e => actions.updateContext({ [key]: e.target.value })} /> : <input value={context[key]} onChange={e => actions.updateContext({ [key]: e.target.value })} />}</label>)}<small className="privacy-note">{compactForm ? '对方只会用这张卡确认你描述的是哪件事。' : '这张卡只帮助对方认出事件，不预先判断谁对谁错，也不会泄露双方后续叙事。'}</small>{children}</div>
 }
 
 export function ThemeCard({ title, selected, onClick }: { title: string; selected: boolean; onClick: () => void }) {
@@ -38,7 +39,7 @@ export function VoiceRecorder() {
   const stop = () => {
     setPhase('processing')
     window.setTimeout(() => {
-      const media: StoryMedia = { id: `audio-${Date.now()}`, kind: 'audio', name: `语音片段 ${seconds || 8}秒`, duration: seconds || 8, transcript: '那天厨房里很暖，我记得门口一直亮着一盏灯。' }
+      const media: StoryMedia = { id: `audio-${Date.now()}`, kind: 'audio', name: `语音片段 ${seconds || 8}秒`, duration: seconds || 8, transcript: '那天在车站，我只说了“到了发消息”，还有很多话没有说。' }
       actions.addMedia(media)
       setPhase('done')
     }, 900)
@@ -50,7 +51,7 @@ export function ImageUploader() {
   const { actions } = useDemo()
   const inputRef = useRef<HTMLInputElement>(null)
   const addMock = (file?: File) => {
-    actions.addMedia({ id: `image-${Date.now()}`, kind: 'image', name: file?.name || '冬至饭桌旧照片.jpg', preview: file ? URL.createObjectURL(file) : undefined, transcript: '图片说明：桌上的碗和门口的灯。' })
+    actions.addMedia({ id: `image-${Date.now()}`, kind: 'image', name: file?.name || '火车站与行李箱.jpg', preview: file ? URL.createObjectURL(file) : undefined, transcript: '图片说明：摊开的行李箱，以及列车启动时的站台。' })
   }
   return <div className="image-uploader"><ImagePlus size={24} /><strong>加入一张记忆材料</strong><p>旧照片、票据或手写内容都可以。原图默认只对你可见。</p><input ref={inputRef} type="file" accept="image/*" hidden onChange={e => addMock(e.target.files?.[0])} /><SecondaryButton onClick={() => inputRef.current?.click()}><Upload size={16} /> 选择图片</SecondaryButton><button className="mock-link" onClick={() => addMock()}>或加入演示图片</button></div>
 }
@@ -67,7 +68,7 @@ export function AICompanion() {
   const draft = state.exchange.drafts[state.activeUserId]
   const [open, setOpen] = useState(false)
   const [prompted, setPrompted] = useState(false)
-  return <aside className={`ai-companion ${open ? 'expanded' : ''}`}><button className="companion-character" aria-label="唤醒陪伴助手" onClick={() => setOpen(value => !value)}><MessengerCharacter variant="pebble" size="small" /><span>{open ? '先收起来' : '需要时叫我'}</span></button>{prompted && !open && <button className="gentle-bubble" onClick={() => setOpen(true)}>需要我陪你理一理吗？</button>}{open && <div className="companion-panel"><div className="companion-title"><Sparkles size={16} /><strong>安静陪你理一理</strong></div><p>{draft.rawText ? '你写到了那顿冬至晚饭、离开前的灯，还有后来才明白的事情。' : '你可以先从一个仍然清楚的画面开始。'}</p><button>回顾刚才写了什么</button><button>给我一个很轻的提示</button><blockquote>那天最先浮现在你眼前的，是什么？</blockquote><button className="close-companion" onClick={() => setOpen(false)}>先不用了</button></div>}<button className="simulate-pause" onClick={() => { setPrompted(true); setOpen(false) }}><Pause size={14} /> 模拟停顿 10–15 分钟</button></aside>
+  return <aside className={`ai-companion ${open ? 'expanded' : ''}`}><button className="companion-character" aria-label="唤醒陪伴助手" onClick={() => setOpen(value => !value)}><MessengerCharacter variant="pebble" size="small" /><span>{open ? '先收起来' : '需要时叫我'}</span></button>{prompted && !open && <button className="gentle-bubble" onClick={() => setOpen(true)}>需要我陪你理一理吗？</button>}{open && <div className="companion-panel"><div className="companion-title"><Sparkles size={16} /><strong>安静陪你理一理</strong></div><p>{draft.rawText ? '你写到了晚饭、行李、车站，以及后来没有发出的长消息。' : '你可以先从一个仍然清楚的画面开始。'}</p><button>回顾刚才写了什么</button><button>给我一个很轻的提示</button><blockquote>离开之前，哪一句话最接近你当时没有说出的部分？</blockquote><button className="close-companion" onClick={() => setOpen(false)}>先不用了</button></div>}<button className="simulate-pause" onClick={() => { setPrompted(true); setOpen(false) }}><Pause size={14} /> 模拟停顿 10–15 分钟</button></aside>
 }
 
 export function TextImageRatioControl({ value, onChange }: { value: 'text' | 'balanced' | 'image'; onChange: (value: 'text' | 'balanced' | 'image') => void }) {

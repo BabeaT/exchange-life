@@ -18,6 +18,7 @@ export interface StoryContext {
   time: string
   place: string
   people: string
+  range: string
   clue: string
   reason: string
   theme: string
@@ -72,6 +73,7 @@ export interface Exchange {
   drafts: Record<UserId, StoryDraft>
   letters: Letter[]
   intersectionStatus: 'ineligible' | 'ready' | 'loading' | 'error' | 'complete'
+  memoryCreated: boolean
   intersectionSaved: boolean
   wateredBy: UserId[]
   createdAt: string
@@ -83,11 +85,22 @@ export interface DemoSettings {
   narrationSpeed: number
 }
 
+export interface DemoPersonalization {
+  stationeryColor: 'ivory' | 'mist-blue' | 'dusty-pink' | 'soft-purple' | 'sage' | 'ochre' | 'light-brown'
+  stationeryTexture: 'clean' | 'fiber' | 'mist' | 'vintage' | 'warm-grain'
+  messengerType: DemoUser['messenger']
+  messengerColor: 'sage' | 'mist-blue' | 'dusty-pink' | 'soft-purple' | 'ochre'
+  messengerTestAnswers: string[]
+  messengerTestCompleted: boolean
+  personalizationUpdatedAt: string
+}
+
 export interface DemoState {
   activeUserId: UserId
   authenticated: boolean
   users: Record<UserId, DemoUser>
   exchange: Exchange
   settings: DemoSettings
+  personalization: DemoPersonalization
   toast: string
 }

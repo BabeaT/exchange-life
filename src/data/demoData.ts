@@ -1,11 +1,10 @@
 import type { DemoState, Exchange, StoryDraft, UserId } from '../types'
+import { modeAStory } from './modeAStory'
 
 export const reactions = [
-  { id: 'received', icon: '◡', label: '我收到了' },
-  { id: 'listening', icon: '··', label: '我在听' },
-  { id: 'hug', icon: '⌒', label: '轻轻抱住' },
-  { id: 'thinking', icon: '…', label: '我想再想一想' },
-  { id: 'thanks', icon: '✦', label: '谢谢你告诉我' },
+  { id: 'seen', icon: '◌', label: '我看见了' },
+  { id: 'closer', icon: '⌒', label: '轻轻靠近' },
+  { id: 'arrived', icon: '✦', label: '这句话抵达我了' },
 ]
 
 export const themes = [
@@ -16,15 +15,9 @@ export const themes = [
   '我想让你认识的那部分自己',
 ]
 
-export const sampleTexts: Record<UserId, string> = {
-  'user-a': '我一直记得那个冬至。厨房的玻璃蒙着水汽，你在桌边一只一只地摆碗。我那时忙着收拾行李，以为自己没有回头。后来才发现，我记住的不是离开，而是门口那盏一直亮着的灯。具体是哪一年，我已经记不太清了。',
-  'user-b': '那天我其实很早就开始准备晚饭。你说晚上要赶车，我怕耽误你，所以一直没有问能不能多留一会儿。我记得你在门口系围巾的时候笑了一下。你走后，我把多盛的那碗汤放在窗边，等它慢慢凉下来。',
-}
+export const sampleTexts: Record<UserId, string> = modeAStory.raw
 
-export const organizedTexts: Record<UserId, string> = {
-  'user-a': '我一直记得那个冬至。厨房的玻璃蒙着水汽，你在桌边一只一只地摆碗。那时我忙着收拾行李，以为自己没有回头。后来才明白，我记住的不是离开，而是门口那盏一直亮着的灯。具体是哪一年，我已经记不太清了。',
-  'user-b': '那天，我很早就开始准备晚饭。你说晚上要赶车，我怕耽误你，所以一直没有问能不能多留一会儿。我记得你在门口系围巾时笑了一下。你走后，我把多盛的那碗汤放在窗边，等它慢慢凉下来。',
-}
+export const organizedTexts: Record<UserId, string> = modeAStory.organized
 
 export const makeDraft = (ownerId: UserId): StoryDraft => ({
   ownerId,
@@ -38,26 +31,28 @@ export const makeDraft = (ownerId: UserId): StoryDraft => ({
 })
 
 export const makeExchange = (): Exchange => ({
-  id: 'exchange-winter-001',
-  title: '那个冬至的晚饭',
-  code: 'WINTER26',
+  id: 'exchange-leaving-home-001',
+  title: modeAStory.title,
+  code: 'LEAVE24',
   narrativeType: 'shared-event',
   method: 'independent',
   deliveryMode: 'immediate',
   scheduledAt: '',
   joined: false,
   context: {
-    title: '那个冬至的晚饭',
-    time: '很多年前的冬至前后',
-    place: '家里的厨房和门口',
-    people: '丹青、林夏和家人',
-    clue: '一顿没来得及好好吃完的晚饭，门口亮着一盏灯。',
-    reason: '想重新看看，那天我们各自记住了什么。',
-    theme: '一段一直记得的经历',
+    title: modeAStory.title,
+    time: '2024年8月中下旬',
+    place: '家里的餐桌；林夏的卧室；火车站；离家后的两个城市',
+    people: '林夏、丹青',
+    range: '从林夏收到深圳工作录用通知，到她离家后的第一个星期。',
+    clue: '晚饭时宣布工作决定；关于天气、租房、安全和工作的反复询问；收拾行李；药品、衣服、腌肉和小时候喜欢的零食；火车站送别；离开后的短消息与没有发出的消息。',
+    reason: '离开之前，我们说了很多，却没有真正说出自己在害怕什么。',
+    theme: '共同事件交换',
   },
   drafts: { 'user-a': makeDraft('user-a'), 'user-b': makeDraft('user-b') },
   letters: [],
   intersectionStatus: 'ineligible',
+  memoryCreated: false,
   intersectionSaved: false,
   wateredBy: [],
   createdAt: new Date().toISOString(),
@@ -72,6 +67,15 @@ export const makeInitialState = (): DemoState => ({
   },
   exchange: makeExchange(),
   settings: { reducedMotion: false, narrationVoice: 'warm', narrationSpeed: 1 },
+  personalization: {
+    stationeryColor: 'ivory',
+    stationeryTexture: 'clean',
+    messengerType: 'moss',
+    messengerColor: 'sage',
+    messengerTestAnswers: [],
+    messengerTestCompleted: false,
+    personalizationUpdatedAt: '',
+  },
   toast: '',
 })
 
@@ -82,10 +86,11 @@ export const makeCompleteState = (): DemoState => {
   state.exchange.drafts['user-a'] = { ...makeDraft('user-a'), rawText: sampleTexts['user-a'], organizedText: organizedTexts['user-a'], phase: 'confirmed', confirmed: true, savedAt: '刚刚' }
   state.exchange.drafts['user-b'] = { ...makeDraft('user-b'), rawText: sampleTexts['user-b'], organizedText: organizedTexts['user-b'], phase: 'confirmed', confirmed: true, savedAt: '刚刚' }
   state.exchange.letters = [
-    { id: 'letter-a', senderId: 'user-a', recipientId: 'user-b', title: '门口那盏灯', text: organizedTexts['user-a'], layout: 'balanced', illustration: 0, status: 'read', sentAt: '2026-07-19T10:00:00Z', deliveredAt: '2026-07-19T10:05:00Z', readAt: '2026-07-19T10:10:00Z', reaction: '我收到了' },
-    { id: 'letter-b', senderId: 'user-b', recipientId: 'user-a', title: '窗边那碗汤', text: organizedTexts['user-b'], layout: 'balanced', illustration: 1, status: 'read', sentAt: '2026-07-19T10:03:00Z', deliveredAt: '2026-07-19T10:05:00Z', readAt: '2026-07-19T10:12:00Z', reaction: '轻轻抱住' },
+    { id: 'letter-a', senderId: 'user-a', recipientId: 'user-b', title: modeAStory.letterTitles['user-a'], text: organizedTexts['user-a'], layout: 'balanced', illustration: 2, status: 'read', sentAt: '2026-07-19T10:00:00Z', deliveredAt: '2026-07-19T10:05:00Z', readAt: '2026-07-19T10:10:00Z', reaction: '我看见了' },
+    { id: 'letter-b', senderId: 'user-b', recipientId: 'user-a', title: modeAStory.letterTitles['user-b'], text: organizedTexts['user-b'], layout: 'balanced', illustration: 3, status: 'read', sentAt: '2026-07-19T10:03:00Z', deliveredAt: '2026-07-19T10:05:00Z', readAt: '2026-07-19T10:12:00Z', reaction: '轻轻靠近' },
   ]
   state.exchange.intersectionStatus = 'complete'
+  state.exchange.memoryCreated = true
   state.exchange.intersectionSaved = true
   state.exchange.wateredBy = ['user-a']
   return state

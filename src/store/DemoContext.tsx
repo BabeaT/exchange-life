@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { makeCompleteState, makeDraft, makeInitialState, organizedTexts, sampleTexts } from '../data/demoData'
-import type { DemoState, Exchange, Letter, StoryContext, StoryMedia, UserId } from '../types'
+import { modeAStory } from '../data/modeAStory'
+import type { DemoPersonalization, DemoState, Exchange, Letter, StoryContext, StoryMedia, UserId } from '../types'
 
 const STORAGE_KEY = 'exchange-life-demo-v1'
 
@@ -9,6 +10,7 @@ interface DemoActions {
   login: () => void
   logout: () => void
   updateProfile: (name: string, avatar: string) => void
+  updatePersonalization: (patch: Partial<DemoPersonalization>) => void
   updateExchange: (patch: Partial<Exchange>) => void
   updateContext: (patch: Partial<StoryContext>) => void
   updateDraft: (userId: UserId, patch: Partial<DemoState['exchange']['drafts'][UserId]>) => void
@@ -21,11 +23,13 @@ interface DemoActions {
   markRead: (letterId: string) => void
   reactToLetter: (letterId: string, reaction: string) => void
   setIntersection: (status: Exchange['intersectionStatus']) => void
-  saveIntersection: () => void
+  createMemoryFragment: () => void
+  saveMemoryToTree: () => void
   water: () => void
   loadSample: () => void
   reset: () => void
   seedBothDrafts: () => void
+  seedBothLetters: () => void
   toast: (message: string) => void
 }
 
@@ -36,7 +40,13 @@ const loadState = () => {
 
   try {
     const value = localStorage.getItem(STORAGE_KEY)
-    return value ? (JSON.parse(value) as DemoState) : makeInitialState()
+    if (!value) return makeInitialState()
+    const saved = JSON.parse(value) as DemoState
+    if (saved.exchange.id === 'exchange-winter-001') saved.exchange = makeInitialState().exchange
+    saved.exchange.memoryCreated ??= saved.exchange.intersectionSaved
+    saved.exchange.context.range ??= makeInitialState().exchange.context.range
+    saved.personalization ??= makeInitialState().personalization
+    return saved
   } catch {
     return makeInitialState()
   }
@@ -113,16 +123,30 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     }),
     markRead: letterId => mutate(next => {
       next.exchange.letters = next.exchange.letters.map(item => item.id === letterId ? { ...item, status: 'read', readAt: new Date().toISOString() } : item)
+      const bothRead = next.exchange.letters.length >= 2 && next.exchange.letters.every(item => item.status === 'read')
+      if (bothRead && next.exchange.intersectionStatus === 'ineligible') next.exchange.intersectionStatus = 'ready'
       return next
     }),
     reactToLetter: (letterId, reaction) => mutate(next => {
       next.exchange.letters = next.exchange.letters.map(item => item.id === letterId ? { ...item, status: 'read', reaction, readAt: item.readAt ?? new Date().toISOString() } : item)
       const bothRead = next.exchange.letters.length >= 2 && next.exchange.letters.every(item => item.status === 'read')
-      if (bothRead) next.exchange.intersectionStatus = 'ready'
+      if (bothRead && next.exchange.intersectionStatus === 'ineligible') next.exchange.intersectionStatus = 'ready'
       return next
     }),
     setIntersection: status => mutate(next => ({ ...next, exchange: { ...next.exchange, intersectionStatus: status } })),
-    saveIntersection: () => mutate(next => ({ ...next, exchange: { ...next.exchange, intersectionStatus: 'complete', intersectionSaved: true } })),
+    createMemoryFragment: () => mutate(next => {
+      if (next.exchange.intersectionStatus === 'complete') next.exchange.memoryCreated = true
+      return next
+    }),
+    updatePersonalization: patch => mutate(next => {
+      next.personalization = { ...next.personalization, ...patch, personalizationUpdatedAt: new Date().toISOString() }
+      if (patch.messengerType) next.users[next.activeUserId].messenger = patch.messengerType
+      return next
+    }),
+    saveMemoryToTree: () => mutate(next => {
+      if (next.exchange.memoryCreated) next.exchange.intersectionSaved = true
+      return next
+    }),
     water: () => mutate(next => {
       if (!next.exchange.wateredBy.includes(next.activeUserId)) next.exchange.wateredBy.push(next.activeUserId)
       return next
@@ -134,8 +158,21 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     },
     seedBothDrafts: () => mutate(next => {
       next.exchange.joined = true
-      next.exchange.drafts['user-a'] = { ...makeDraft('user-a'), rawText: sampleTexts['user-a'], organizedText: organizedTexts['user-a'], phase: 'confirmed', confirmed: true, savedAt: '刚刚' }
-      next.exchange.drafts['user-b'] = { ...makeDraft('user-b'), rawText: sampleTexts['user-b'], organizedText: organizedTexts['user-b'], phase: 'confirmed', confirmed: true, savedAt: '刚刚' }
+      if (!next.exchange.drafts['user-a'].rawText) next.exchange.drafts['user-a'] = { ...makeDraft('user-a'), rawText: sampleTexts['user-a'], savedAt: '刚刚' }
+      if (!next.exchange.drafts['user-b'].rawText) next.exchange.drafts['user-b'] = { ...makeDraft('user-b'), rawText: sampleTexts['user-b'], savedAt: '刚刚' }
+      return next
+    }),
+    seedBothLetters: () => mutate(next => {
+      next.authenticated = true
+      next.exchange.joined = true
+      next.exchange.letters = [
+        { id: 'letter-a', senderId: 'user-a', recipientId: 'user-b', title: modeAStory.letterTitles['user-a'], text: organizedTexts['user-a'], layout: 'balanced', illustration: 2, status: 'delivered', sentAt: new Date().toISOString(), deliveredAt: new Date().toISOString() },
+        { id: 'letter-b', senderId: 'user-b', recipientId: 'user-a', title: modeAStory.letterTitles['user-b'], text: organizedTexts['user-b'], layout: 'balanced', illustration: 3, status: 'delivered', sentAt: new Date().toISOString(), deliveredAt: new Date().toISOString() },
+      ]
+      next.exchange.intersectionStatus = 'ineligible'
+      next.exchange.memoryCreated = false
+      next.exchange.intersectionSaved = false
+      next.exchange.wateredBy = []
       return next
     }),
     toast: notify,
