@@ -9,3 +9,11 @@ dist/
 !.env.example
 .next/
 .tmp-demo-story-images/
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
