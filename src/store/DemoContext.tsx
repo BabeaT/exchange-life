@@ -3,7 +3,7 @@ import { makeCompleteState, makeDraft, makeInitialState, organizedTexts, sampleT
 import { modeAStory } from '../data/modeAStory'
 import type { DemoPersonalization, DemoState, Exchange, Letter, StoryContext, StoryMedia, UserId } from '../types'
 
-const STORAGE_KEY = 'exchange-life-demo-v1'
+const STORAGE_KEY = 'exchange-life-demo-story-1-v2'
 
 interface DemoActions {
   setActiveUser: (id: UserId) => void

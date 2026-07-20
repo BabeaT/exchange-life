@@ -1,12 +1,11 @@
-import { ArrowLeft, ArrowRight, Check, Clock3, LockKeyhole, RotateCcw, Send, Sparkles } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Clock3, Images, LockKeyhole, Send, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AICompanion, StoryEditor, TextImageRatioControl, VersionTools } from '../components/story'
 import { LetterPreview } from '../components/letter'
 import { LoadingState, PaperPanel, PrimaryButton, SecondaryButton, StatusBanner } from '../components/ui'
-import { StoryIllustration } from '../components/characters'
 import { organizedTexts } from '../data/demoData'
-import { modeAStory } from '../data/modeAStory'
+import { modeALetterScenes, modeAStory } from '../data/modeAStory'
 import { useDemo } from '../store/DemoContext'
 
 export function WritePage() {
@@ -41,9 +40,9 @@ export function ComposePage() {
   const navigate = useNavigate()
   const draft = state.exchange.drafts[state.activeUserId]
   const [layout, setLayout] = useState<'text' | 'balanced' | 'image'>('balanced')
-  const [illustration, setIllustration] = useState(0)
   const [title, setTitle] = useState(modeAStory.letterTitles[state.activeUserId])
-  return <div className="page compose-page"><header className="page-heading inline-heading"><div><span className="eyebrow">图文信件</span><h1>把确认过的文字，放进一封信里</h1><p>插图是叙事想象，不会被当作真实影像。</p></div><StatusBanner tone="success">文字已由本人确认</StatusBanner></header><div className="compose-layout"><aside className="compose-controls"><PaperPanel><label className="field"><span>信件标题</span><input value={title} onChange={e => setTitle(e.target.value)} /></label><span className="control-label">图文比例</span><TextImageRatioControl value={layout} onChange={setLayout} /></PaperPanel><PaperPanel><span className="control-label">模拟事件插图</span><div className="illustration-options">{[0, 1, 2, 3].map(item => <button key={item} className={illustration === item ? 'selected' : ''} onClick={() => setIllustration(item)}><StoryIllustration variant={item} label={['饭菜已经变凉的餐桌', '摊开的行李箱和被放回去的零食', '车窗与站台上的两个人', '两个城市的夜晚与没有发出的长消息'][item]} /><span>方案 {item + 1}</span></button>)}</div><SecondaryButton onClick={() => setIllustration((illustration + 1) % 4)}><RotateCcw size={16} /> 更换模拟插图</SecondaryButton></PaperPanel></aside><div className="compose-preview"><LetterPreview letter={{ title, text: draft.organizedText, layout, illustration }} /></div></div><div className="sticky-actions"><SecondaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/organize`)}>修改文字</SecondaryButton><PrimaryButton onClick={() => { actions.toast('图文信件候选已保存'); navigate(`/exchanges/${state.exchange.id}/preview?title=${encodeURIComponent(title)}&layout=${layout}&art=${illustration}`) }}>进入完整预览 <ArrowRight size={17} /></PrimaryButton></div></div>
+  const scenes = modeALetterScenes[state.activeUserId]
+  return <div className="page compose-page"><header className="page-heading inline-heading"><div><span className="eyebrow">图文信件</span><h1>把确认过的文字，放进一封信里</h1><p>原稿中的插图已按情节自动编排。它们是叙事想象，不会被当作真实影像。</p></div><StatusBanner tone="success">文字与 7 幅插图已匹配</StatusBanner></header><div className="compose-layout"><aside className="compose-controls"><PaperPanel><label className="field"><span>信件标题</span><input value={title} onChange={e => setTitle(e.target.value)} /></label><span className="control-label">图文比例</span><TextImageRatioControl value={layout} onChange={setLayout} /></PaperPanel><PaperPanel><div className="illustration-plan-heading"><Images size={17} /><div><strong>原稿插图编排</strong><small>按故事顺序自动插入</small></div></div><div className="illustration-storyboard">{scenes.map((scene, index) => <figure key={scene.id}><img src={scene.image} alt="" /><figcaption><span>{String(index + 1).padStart(2, '0')}</span>{scene.title}</figcaption></figure>)}</div><p className="illustration-plan-note">更改正文后，系统会退出固定图文编排，避免图片与新内容错配。</p></PaperPanel></aside><div className="compose-preview"><LetterPreview ownerId={state.activeUserId} letter={{ title, text: draft.organizedText, layout, illustration: 0 }} /></div></div><div className="sticky-actions"><SecondaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/organize`)}>修改文字</SecondaryButton><PrimaryButton onClick={() => { actions.toast('图文信件候选已保存'); navigate(`/exchanges/${state.exchange.id}/preview?title=${encodeURIComponent(title)}&layout=${layout}`) }}>进入完整预览 <ArrowRight size={17} /></PrimaryButton></div></div>
 }
 
 export function PreviewPage() {
@@ -51,13 +50,15 @@ export function PreviewPage() {
   const navigate = useNavigate()
   const params = new URLSearchParams(window.location.search)
   const draft = state.exchange.drafts[state.activeUserId]
-  const letter = { title: params.get('title') || modeAStory.letterTitles[state.activeUserId], text: draft.organizedText, layout: (params.get('layout') || 'balanced') as 'text' | 'balanced' | 'image', illustration: Number(params.get('art') || 0) }
-  return <div className="page preview-page"><header className="page-heading inline-heading"><div><span className="eyebrow">收信人视角预览</span><h1>寄出前的最后一遍</h1><p>对方只会看到下面这封正式信，不会看到整理过程。</p></div><div className="private-badge"><LockKeyhole size={15} /> 尚未公开</div></header><div className="preview-stage"><LetterPreview letter={letter} /></div><div className="sticky-actions"><SecondaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/compose`)}>返回修改</SecondaryButton><PrimaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/send`, { state: letter })}>确认最终版本 <ArrowRight size={17} /></PrimaryButton></div></div>
+  const letter = { title: params.get('title') || modeAStory.letterTitles[state.activeUserId], text: draft.organizedText, layout: (params.get('layout') || 'balanced') as 'text' | 'balanced' | 'image', illustration: 0 }
+  return <div className="page preview-page"><header className="page-heading inline-heading"><div><span className="eyebrow">收信人视角预览</span><h1>寄出前的最后一遍</h1><p>对方只会看到下面这封正式信，不会看到整理过程。</p></div><div className="private-badge"><LockKeyhole size={15} /> 尚未公开</div></header><div className="preview-stage"><LetterPreview ownerId={state.activeUserId} letter={letter} /></div><div className="sticky-actions"><SecondaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/compose`)}>返回修改</SecondaryButton><PrimaryButton onClick={() => navigate(`/exchanges/${state.exchange.id}/send`, { state: letter })}>确认最终版本 <ArrowRight size={17} /></PrimaryButton></div></div>
 }
 
 export function SendSettingsPage() {
   const { state, actions } = useDemo()
   const navigate = useNavigate()
+  const location = useLocation()
+  const prepared = location.state as Pick<import('../types').Letter, 'title' | 'text' | 'layout' | 'illustration'> | null
   const [mode, setMode] = useState(state.exchange.deliveryMode)
   const [date, setDate] = useState(state.exchange.scheduledAt || '2026-07-20T20:00')
   const [sending, setSending] = useState(false)
@@ -67,7 +68,7 @@ export function SendSettingsPage() {
     setSending(true); setFail(false)
     window.setTimeout(() => {
       actions.updateExchange({ deliveryMode: mode, scheduledAt: mode === 'scheduled' ? date : '' })
-      actions.sendLetter({ title: modeAStory.letterTitles[state.activeUserId], text: draft.organizedText, layout: 'balanced', illustration: state.activeUserId === 'user-a' ? 2 : 3, sentAt: new Date().toISOString() })
+      actions.sendLetter({ title: prepared?.title || modeAStory.letterTitles[state.activeUserId], text: prepared?.text || draft.organizedText, layout: prepared?.layout || 'balanced', illustration: prepared?.illustration || 0, sentAt: new Date().toISOString() })
       setSending(false); navigate(`/exchanges/${state.exchange.id}/waiting`)
     }, 700)
   }

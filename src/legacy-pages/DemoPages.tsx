@@ -27,6 +27,7 @@ export function DemoControlPage() {
       <ControlCard icon={<Users />} title="创建测试用户" description="恢复甲、乙两位隔离用户" onClick={() => action(actions.reset, '测试用户已恢复')} />
       <ControlCard icon={<Copy />} title="生成邀请" description={`邀请码 ${state.exchange.code}`} onClick={() => navigate(`/exchanges/${state.exchange.id}/invite`)} />
       <ControlCard icon={<UserRound />} title="模拟对方加入" description={state.exchange.joined ? '已经加入' : '等待加入'} onClick={() => action(() => actions.updateExchange({ joined: true }), '用户乙已加入')} />
+      <ControlCard icon={<ArrowRight />} title="切换交换方式" description={state.exchange.method === 'independent' ? '当前：双方独立表达' : '当前：我先告诉对方'} onClick={() => action(() => actions.updateExchange({ method: state.exchange.method === 'independent' ? 'tell-first' : 'independent', deliveryMode: 'immediate' }), state.exchange.method === 'independent' ? '已切换为“我先告诉对方”' : '已切换为“双方独立表达”')} />
       <ControlCard icon={<Sparkles />} title="加载双方原始表达" description="载入两份仅本人可见的口语原稿" onClick={() => action(actions.seedBothDrafts, '双方私人原始表达已载入')} />
       <ControlCard icon={<Send />} title="模拟双方发送" description={`${state.exchange.letters.length} / 2 封正式信`} onClick={loadDeliveredLetters} />
       <ControlCard icon={<Clock3 />} title="到达约定时间" description="释放托管或定时信件" onClick={() => action(actions.deliverLetters, '已经到达约定时间')} />

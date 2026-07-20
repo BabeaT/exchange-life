@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import '../styles/index.css'
 import '../styles/personalization.css'
 import '../styles/mode-a-demo.css'
+import '../styles/story-images.css'
 
 export const metadata: Metadata = {
   title: '交换人生',

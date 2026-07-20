@@ -1,10 +1,11 @@
-import { readFile } from 'node:fs/promises'
+import { access, readFile } from 'node:fs/promises'
 
 const app = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8')
 const state = await readFile(new URL('../src/store/DemoContext.tsx', import.meta.url), 'utf8')
 const docs = await readFile(new URL('../docs/design/implemented-page-map.md', import.meta.url), 'utf8')
 const entry = await readFile(new URL('../src/legacy-pages/EntryPages.tsx', import.meta.url), 'utf8')
 const styles = await readFile(new URL('../src/styles/index.css', import.meta.url), 'utf8')
+const story = await readFile(new URL('../src/data/modeAStory.ts', import.meta.url), 'utf8')
 
 const requiredRoutes = [
   '/', '/start', '/auth', '/profile', '/home', '/exchanges/new', '/join',
@@ -35,4 +36,14 @@ for (const rule of ['white-space:nowrap', 'word-break:keep-all', 'font-size:clam
   if (!styles.includes(rule)) throw new Error(`Missing responsive brand-title rule: ${rule}`)
 }
 
-console.log(`Smoke checks passed: ${requiredRoutes.length} route patterns, dual-user persistence, brand entry, implemented page map.`)
+for (let index = 1; index <= 14; index += 1) {
+  const imagePath = new URL(`../public/demo/story-1/image${index}.png`, import.meta.url)
+  await access(imagePath)
+  if (!story.includes(`/demo/story-1/image${index}.png`)) throw new Error(`Story image ${index} is not mapped to demo content`)
+}
+
+for (const staleTerm of ['火车站', '列车', '站台']) {
+  if (story.includes(staleTerm)) throw new Error(`Stale station narrative remains in story data: ${staleTerm}`)
+}
+
+console.log(`Smoke checks passed: ${requiredRoutes.length} route patterns, dual-user persistence, 14 mapped story images, brand entry, implemented page map.`)

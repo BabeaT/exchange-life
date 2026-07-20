@@ -39,7 +39,7 @@ export function VoiceRecorder() {
   const stop = () => {
     setPhase('processing')
     window.setTimeout(() => {
-      const media: StoryMedia = { id: `audio-${Date.now()}`, kind: 'audio', name: `语音片段 ${seconds || 8}秒`, duration: seconds || 8, transcript: '那天在车站，我只说了“到了发消息”，还有很多话没有说。' }
+      const media: StoryMedia = { id: `audio-${Date.now()}`, kind: 'audio', name: `语音片段 ${seconds || 8}秒`, duration: seconds || 8, transcript: '那天在机场安检口，我们都笑了一下，还有很多话没有说。' }
       actions.addMedia(media)
       setPhase('done')
     }, 900)
@@ -51,7 +51,7 @@ export function ImageUploader() {
   const { actions } = useDemo()
   const inputRef = useRef<HTMLInputElement>(null)
   const addMock = (file?: File) => {
-    actions.addMedia({ id: `image-${Date.now()}`, kind: 'image', name: file?.name || '火车站与行李箱.jpg', preview: file ? URL.createObjectURL(file) : undefined, transcript: '图片说明：摊开的行李箱，以及列车启动时的站台。' })
+    actions.addMedia({ id: `image-${Date.now()}`, kind: 'image', name: file?.name || '机场与行李箱.jpg', preview: file ? URL.createObjectURL(file) : undefined, transcript: '图片说明：装满药和食物的行李箱，以及机场安检口的黄色等候线。' })
   }
   return <div className="image-uploader"><ImagePlus size={24} /><strong>加入一张记忆材料</strong><p>旧照片、票据或手写内容都可以。原图默认只对你可见。</p><input ref={inputRef} type="file" accept="image/*" hidden onChange={e => addMock(e.target.files?.[0])} /><SecondaryButton onClick={() => inputRef.current?.click()}><Upload size={16} /> 选择图片</SecondaryButton><button className="mock-link" onClick={() => addMock()}>或加入演示图片</button></div>
 }
@@ -68,7 +68,7 @@ export function AICompanion() {
   const draft = state.exchange.drafts[state.activeUserId]
   const [open, setOpen] = useState(false)
   const [prompted, setPrompted] = useState(false)
-  return <aside className={`ai-companion ${open ? 'expanded' : ''}`}><button className="companion-character" aria-label="唤醒陪伴助手" onClick={() => setOpen(value => !value)}><MessengerCharacter variant="pebble" size="small" /><span>{open ? '先收起来' : '需要时叫我'}</span></button>{prompted && !open && <button className="gentle-bubble" onClick={() => setOpen(true)}>需要我陪你理一理吗？</button>}{open && <div className="companion-panel"><div className="companion-title"><Sparkles size={16} /><strong>安静陪你理一理</strong></div><p>{draft.rawText ? '你写到了晚饭、行李、车站，以及后来没有发出的长消息。' : '你可以先从一个仍然清楚的画面开始。'}</p><button>回顾刚才写了什么</button><button>给我一个很轻的提示</button><blockquote>离开之前，哪一句话最接近你当时没有说出的部分？</blockquote><button className="close-companion" onClick={() => setOpen(false)}>先不用了</button></div>}<button className="simulate-pause" onClick={() => { setPrompted(true); setOpen(false) }}><Pause size={14} /> 模拟停顿 10–15 分钟</button></aside>
+  return <aside className={`ai-companion ${open ? 'expanded' : ''}`}><button className="companion-character" aria-label="唤醒陪伴助手" onClick={() => setOpen(value => !value)}><MessengerCharacter variant="pebble" size="small" /><span>{open ? '先收起来' : '需要时叫我'}</span></button>{prompted && !open && <button className="gentle-bubble" onClick={() => setOpen(true)}>需要我陪你理一理吗？</button>}{open && <div className="companion-panel"><div className="companion-title"><Sparkles size={16} /><strong>安静陪你理一理</strong></div><p>{draft.rawText ? '你写到了晚饭、行李、机场，以及后来没有发出的长消息。' : '你可以先从一个仍然清楚的画面开始。'}</p><button>回顾刚才写了什么</button><button>给我一个很轻的提示</button><blockquote>离开之前，哪一句话最接近你当时没有说出的部分？</blockquote><button className="close-companion" onClick={() => setOpen(false)}>先不用了</button></div>}<button className="simulate-pause" onClick={() => { setPrompted(true); setOpen(false) }}><Pause size={14} /> 模拟停顿 10–15 分钟</button></aside>
 }
 
 export function TextImageRatioControl({ value, onChange }: { value: 'text' | 'balanced' | 'image'; onChange: (value: 'text' | 'balanced' | 'image') => void }) {

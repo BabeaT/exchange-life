@@ -11,3 +11,7 @@ export function MistScene({ children }: { children?: ReactNode }) {
 export function StoryIllustration({ variant = 0, label = '叙事插图' }: { variant?: number; label?: string }) {
   return <div className={`story-illustration illustration-${variant % 4}`} role="img" aria-label={label}><span className="illustration-moon" /><span className="illustration-house" /><span className="illustration-light" /><span className="illustration-ground" /></div>
 }
+
+export function StoryPhoto({ src, alt, caption, eager = false }: { src: string; alt: string; caption?: string; eager?: boolean }) {
+  return <figure className="story-photo"><img src={src} alt={alt} loading={eager ? 'eager' : 'lazy'} />{caption && <figcaption>{caption}</figcaption>}</figure>
+}
