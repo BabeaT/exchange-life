@@ -1,9 +1,10 @@
-import { ChevronLeft, ChevronRight, Pause, Play, Volume2 } from 'lucide-react'
-import { useState } from 'react'
+import { ChevronsDown, Music2, Pause, Play, ScrollText, Volume2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StoryIllustration, StoryPhoto } from './characters'
-import { PrimaryButton, SecondaryButton } from './ui'
+import { PrimaryButton } from './ui'
 import { getStationeryColorValue } from '../data/personalization'
 import { modeALetterScenes, modeAStory } from '../data/modeAStory'
+import { ambientBgm } from '../lib/ambient-bgm'
 import { useDemo } from '../store/DemoContext'
 import type { DemoPersonalization, Letter, UserId } from '../types'
 
@@ -28,14 +29,62 @@ export function LetterPreview({ letter, ownerId, stationery }: { letter: Pick<Le
   </article>
 }
 
-export function LetterReader({ letter, sender }: { letter: Letter; sender: string }) {
-  const { state } = useDemo()
-  const [page, setPage] = useState(0)
-  const [playing, setPlaying] = useState(false)
-  const scenes = sameStory(letter.senderId, letter.text) ? modeALetterScenes[letter.senderId] : []
-  const pages = scenes.length
-    ? scenes.map((scene, index) => <section className="reader-scene" key={scene.id}><StoryPhoto src={scene.image} alt={scene.alt} caption={scene.caption} eager={index === 0} /><div className="reader-copy"><span>第 {index + 1} / {scenes.length} 幕</span><h2>{scene.title}</h2>{scene.paragraphs.map((text, paragraphIndex) => <p key={paragraphIndex}>{text}</p>)}</div></section>)
-    : [<StoryIllustration key="art" variant={letter.illustration} label="信中叙事插图" />, <div key="text" className="reader-copy">{letter.text.split('\n').filter(Boolean).map((text, index) => <p key={index}>{text}</p>)}</div>]
+type ReaderBlock =
+  | { id: string; kind: 'heading'; sceneNumber: number; sceneCount: number; title: string }
+  | { id: string; kind: 'paragraph'; text: string }
+  | { id: string; kind: 'image'; src: string; alt: string; caption: string }
 
-  return <div className="letter-reader"><div className="reader-toolbar"><span>{sender} 写给你的信</span><div className="narration-control"><button onClick={() => setPlaying(value => !value)} aria-label={playing ? '暂停朗读' : '开始朗读'}>{playing ? <Pause size={16} /> : <Play size={16} />}</button><Volume2 size={15} /><span>{playing ? '温暖中性声 · 正在朗读' : '主动开启语音读信'}</span></div></div><div className={`reader-page stationery-texture-${state.personalization.stationeryTexture}`} style={{ backgroundColor: getStationeryColorValue(state.personalization.stationeryColor) }}>{pages[page]}</div><div className="reader-nav"><SecondaryButton disabled={page === 0} onClick={() => setPage(page - 1)}><ChevronLeft size={16} /> 上一页</SecondaryButton><span>{page + 1} / {pages.length}</span><PrimaryButton disabled={page === pages.length - 1} onClick={() => setPage(page + 1)}>下一页 <ChevronRight size={16} /></PrimaryButton></div><div className="reading-progress"><span style={{ width: `${((page + 1) / pages.length) * 100}%` }} /></div></div>
+export function LetterReader({ letter, sender, onComplete }: { letter: Letter; sender: string; onComplete?: () => void }) {
+  const { state } = useDemo()
+  const scenes = useMemo(() => sameStory(letter.senderId, letter.text) ? modeALetterScenes[letter.senderId] : [], [letter.senderId, letter.text])
+  const blocks = useMemo<ReaderBlock[]>(() => scenes.length ? scenes.flatMap((scene, sceneIndex) => {
+    const imageAfter = Math.max(1, Math.ceil(scene.paragraphs.length / 2))
+    return [
+      { id: `${scene.id}-heading`, kind: 'heading' as const, sceneNumber: sceneIndex + 1, sceneCount: scenes.length, title: scene.title },
+      ...scene.paragraphs.slice(0, imageAfter).map((text, index) => ({ id: `${scene.id}-before-${index}`, kind: 'paragraph' as const, text })),
+      { id: `${scene.id}-image`, kind: 'image' as const, src: scene.image, alt: scene.alt, caption: scene.caption },
+      ...scene.paragraphs.slice(imageAfter).map((text, index) => ({ id: `${scene.id}-after-${index}`, kind: 'paragraph' as const, text })),
+    ]
+  }) : letter.text.split('\n').filter(Boolean).map((text, index) => ({ id: `plain-${index}`, kind: 'paragraph' as const, text })), [letter.text, scenes])
+  const [revealed, setRevealed] = useState(state.settings.reducedMotion ? blocks.length : 1)
+  const [flowing, setFlowing] = useState(!state.settings.reducedMotion)
+  const [autoFollow, setAutoFollow] = useState(true)
+  const [musicOn, setMusicOn] = useState(ambientBgm.isPlaying())
+  const [volume, setVolume] = useState(0.42)
+  const completed = revealed >= blocks.length
+  const completedRef = useRef(false)
+
+  useEffect(() => {
+    if (!flowing || completed) return
+    const timer = window.setTimeout(() => setRevealed(value => Math.min(blocks.length, value + 1)), 1300)
+    return () => window.clearTimeout(timer)
+  }, [blocks.length, completed, flowing, revealed])
+
+  useEffect(() => {
+    if (!autoFollow || revealed <= 1) return
+    const current = document.querySelector(`[data-reader-block="${revealed - 1}"]`)
+    current?.scrollIntoView({ behavior: state.settings.reducedMotion ? 'auto' : 'smooth', block: 'center' })
+  }, [autoFollow, revealed, state.settings.reducedMotion])
+
+  useEffect(() => {
+    if (!completed || completedRef.current) return
+    completedRef.current = true
+    onComplete?.()
+  }, [completed, onComplete])
+
+  const toggleMusic = async () => {
+    if (musicOn) {
+      ambientBgm.pause()
+      setMusicOn(false)
+      return
+    }
+    setMusicOn(await ambientBgm.play())
+  }
+
+  const updateVolume = (next: number) => {
+    setVolume(next)
+    ambientBgm.setVolume(next)
+  }
+
+  return <div className="letter-reader flowing-reader"><div className="reader-toolbar"><div><span>{sender} 写给你的信</span><small>{completed ? '故事已经完整浮现' : `正在浮现 · ${Math.round((revealed / blocks.length) * 100)}%`}</small></div><div className="reader-controls"><button title={flowing ? '暂停浮现' : '继续浮现'} onClick={() => setFlowing(value => !value)} disabled={completed} aria-label={flowing ? '暂停故事浮现' : '继续故事浮现'}>{flowing ? <Pause size={16} /> : <Play size={16} />}</button><button title="展开全文" onClick={() => { setRevealed(blocks.length); setFlowing(false) }} disabled={completed} aria-label="立即展开全文"><ChevronsDown size={16} /></button><button title={autoFollow ? '关闭自动跟随' : '开启自动跟随'} className={autoFollow ? 'active' : ''} onClick={() => setAutoFollow(value => !value)} aria-label={autoFollow ? '关闭自动跟随' : '开启自动跟随'}><ScrollText size={16} /></button><span className="reader-control-separator" /><button title={musicOn ? '暂停背景音乐' : '播放背景音乐'} className={musicOn ? 'active' : ''} onClick={toggleMusic} aria-label={musicOn ? '暂停背景音乐' : '播放背景音乐'}><Music2 size={16} /></button><Volume2 size={15} /><input type="range" min="0" max="1" step="0.05" value={volume} onChange={event => updateVolume(Number(event.target.value))} aria-label="背景音乐音量" /></div></div><article className={`reader-flow stationery-texture-${state.personalization.stationeryTexture}`} style={{ backgroundColor: getStationeryColorValue(state.personalization.stationeryColor) }} aria-live="polite">{blocks.map((block, index) => <div className={`reader-reveal ${index < revealed ? 'visible' : ''} reader-${block.kind}`} data-reader-block={index} key={block.id}>{block.kind === 'heading' && <header><span>第 {block.sceneNumber} / {block.sceneCount} 幕</span><h2>{block.title}</h2></header>}{block.kind === 'paragraph' && <p>{block.text}</p>}{block.kind === 'image' && <StoryPhoto src={block.src} alt={block.alt} caption={block.caption} eager={index < 5} />}</div>)}</article><div className="reader-flow-footer"><button className="subtle-link" onClick={() => setAutoFollow(value => !value)}>{autoFollow ? '正在自动跟随故事' : '继续自动跟随'}</button><button className="subtle-link" disabled={completed} onClick={() => { setRevealed(blocks.length); setFlowing(false) }}>展开全文</button></div><div className="reading-progress"><span style={{ width: `${(revealed / blocks.length) * 100}%` }} /></div></div>
 }

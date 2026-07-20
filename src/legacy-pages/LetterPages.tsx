@@ -8,6 +8,7 @@ import { PaperPanel, PrimaryButton, SecondaryButton } from '../components/ui'
 import { reactions } from '../data/demoData'
 import { modeAEventNodes, modeAStory } from '../data/modeAStory'
 import { useDemo } from '../store/DemoContext'
+import { ambientBgm } from '../lib/ambient-bgm'
 
 export function DeliveryPage() {
   const { state } = useDemo()
@@ -28,9 +29,19 @@ export function ReadLetterPage() {
   const navigate = useNavigate()
   const letter = state.exchange.letters.find(item => item.id === letterId)
   const [opened, setOpened] = useState(false)
+  const [readingComplete, setReadingComplete] = useState(false)
+  useEffect(() => () => {
+    window.setTimeout(() => {
+      if (!document.querySelector('.flowing-reader')) ambientBgm.pause()
+    }, 0)
+  }, [])
   if (!letter) return <MissingLetter />
   const sender = state.users[letter.senderId]
-  return <div className="page read-page"><Link to="/letters" className="back-link"><ArrowLeft size={16} /> 回到信件</Link>{!opened ? <LetterCover title={letter.title} sender={sender.name} senderId={letter.senderId} onOpen={() => setOpened(true)} /> : <><LetterReader letter={letter} sender={sender.name} /><div className="reader-complete"><p>读到这里时，你可以用一个动作收下这封信。</p><PrimaryButton onClick={() => { actions.markRead(letter.id); navigate(`/exchanges/${state.exchange.id}/letters/${letter.id}/respond`) }}>我读完了 <ArrowRight size={17} /></PrimaryButton></div></>}</div>
+  const openLetter = () => {
+    setOpened(true)
+    void ambientBgm.play()
+  }
+  return <div className="page read-page"><Link to="/letters" className="back-link"><ArrowLeft size={16} /> 回到信件</Link>{!opened ? <LetterCover title={letter.title} sender={sender.name} senderId={letter.senderId} onOpen={openLetter} /> : <><LetterReader letter={letter} sender={sender.name} onComplete={() => setReadingComplete(true)} />{readingComplete && <div className="reader-complete reader-complete-visible"><p>故事已经完整抵达。你可以用一个动作收下这封信。</p><PrimaryButton onClick={() => { ambientBgm.pause(); actions.markRead(letter.id); navigate(`/exchanges/${state.exchange.id}/letters/${letter.id}/respond`) }}>我读完了 <ArrowRight size={17} /></PrimaryButton></div>}</>}</div>
 }
 
 export function ReactionPage() {

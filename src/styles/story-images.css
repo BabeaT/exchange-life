@@ -140,6 +140,175 @@
   align-items: stretch;
 }
 
+.flowing-reader {
+  width: min(920px, 100%);
+}
+
+.flowing-reader .reader-toolbar {
+  position: sticky;
+  z-index: 20;
+  top: 76px;
+  gap: 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(107, 85, 72, .14);
+  border-radius: 6px;
+  background: rgba(250, 248, 243, .94);
+  box-shadow: 0 12px 30px rgba(75, 59, 49, .08);
+  backdrop-filter: blur(14px);
+}
+
+.flowing-reader .reader-toolbar > div:first-child {
+  display: flex;
+  min-width: 150px;
+  flex-direction: column;
+}
+
+.flowing-reader .reader-toolbar small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: .66rem;
+}
+
+.reader-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.reader-controls button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--muted);
+}
+
+.reader-controls button.active {
+  border-color: var(--ochre);
+  background: rgba(196, 162, 119, .18);
+  color: var(--brown);
+}
+
+.reader-controls button:disabled {
+  cursor: default;
+  opacity: .35;
+}
+
+.reader-control-separator {
+  width: 1px;
+  height: 24px;
+  margin: 0 3px;
+  background: var(--border);
+}
+
+.reader-controls input[type='range'] {
+  width: 82px;
+  accent-color: var(--ochre);
+}
+
+.reader-flow {
+  min-height: 720px;
+  padding: 76px clamp(34px, 8vw, 92px) 90px;
+  border: 1px solid rgba(107, 85, 72, .14);
+  border-radius: 4px;
+  box-shadow: 0 24px 70px rgba(75, 59, 49, .12);
+  overflow: clip;
+}
+
+.reader-reveal {
+  max-height: 0;
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  filter: blur(7px);
+  transform: translateY(24px);
+  transition: opacity 1.1s ease, filter 1.2s ease, transform 1.1s ease, max-height 1.1s ease, margin 1.1s ease;
+}
+
+.reader-reveal.visible {
+  max-height: 1800px;
+  opacity: 1;
+  filter: blur(0);
+  transform: translateY(0);
+}
+
+.reader-heading.visible {
+  margin-top: 78px;
+  margin-bottom: 22px;
+}
+
+.reader-heading:first-child.visible {
+  margin-top: 0;
+}
+
+.reader-heading header {
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.reader-heading:first-child header {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.reader-heading span {
+  color: var(--ochre);
+  font-size: .68rem;
+  font-weight: 700;
+}
+
+.reader-heading h2 {
+  margin: 7px 0 0;
+  font-size: 1.7rem;
+}
+
+.reader-paragraph.visible {
+  margin-bottom: 1.25em;
+}
+
+.reader-paragraph p {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  line-height: 2.2;
+}
+
+.reader-image.visible {
+  width: calc(100% + 60px);
+  margin: 34px 0 42px -30px;
+}
+
+.reader-image .story-photo img {
+  box-shadow: 0 18px 44px rgba(75, 59, 49, .1);
+}
+
+.reader-image .story-photo figcaption {
+  padding: 0 30px;
+  text-align: center;
+}
+
+.reader-flow-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 8px 0;
+}
+
+.reader-flow-footer button:disabled {
+  opacity: .4;
+}
+
+.reader-complete-visible {
+  animation: reader-complete-arrive .8s ease both;
+}
+
+@keyframes reader-complete-arrive {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .reader-scene {
   display: grid;
   grid-template-columns: minmax(250px, .9fr) minmax(0, 1.15fr);
@@ -215,6 +384,47 @@
   .reader-toolbar {
     align-items: flex-start;
     gap: 10px;
+  }
+
+  .flowing-reader .reader-toolbar {
+    position: static;
+    flex-direction: column;
+  }
+
+  .reader-controls {
+    width: 100%;
+  }
+
+  .reader-controls input[type='range'] {
+    min-width: 64px;
+    flex: 1;
+  }
+
+  .reader-flow {
+    min-height: 600px;
+    padding: 48px 24px 64px;
+  }
+
+  .reader-heading.visible {
+    margin-top: 56px;
+  }
+
+  .reader-heading h2 {
+    font-size: 1.35rem;
+  }
+
+  .reader-paragraph p {
+    font-size: .98rem;
+    line-height: 2.05;
+  }
+
+  .reader-image.visible {
+    width: 100%;
+    margin: 28px 0 34px;
+  }
+
+  .reader-image .story-photo figcaption {
+    padding: 0;
   }
 
   .narration-control > span {

@@ -6,6 +6,7 @@ const docs = await readFile(new URL('../docs/design/implemented-page-map.md', im
 const entry = await readFile(new URL('../src/legacy-pages/EntryPages.tsx', import.meta.url), 'utf8')
 const styles = await readFile(new URL('../src/styles/index.css', import.meta.url), 'utf8')
 const story = await readFile(new URL('../src/data/modeAStory.ts', import.meta.url), 'utf8')
+const letterReader = await readFile(new URL('../src/components/letter.tsx', import.meta.url), 'utf8')
 
 const requiredRoutes = [
   '/', '/start', '/auth', '/profile', '/home', '/exchanges/new', '/join',
@@ -46,4 +47,9 @@ for (const staleTerm of ['火车站', '列车', '站台']) {
   if (story.includes(staleTerm)) throw new Error(`Stale station narrative remains in story data: ${staleTerm}`)
 }
 
-console.log(`Smoke checks passed: ${requiredRoutes.length} route patterns, dual-user persistence, 14 mapped story images, brand entry, implemented page map.`)
+for (const readerCapability of ['reader-reveal', 'ambientBgm', '背景音乐音量', '展开全文']) {
+  if (!letterReader.includes(readerCapability)) throw new Error(`Missing automatic reader capability: ${readerCapability}`)
+}
+if (letterReader.includes('下一页') || letterReader.includes('上一页')) throw new Error('Manual pagination remains in the story reader')
+
+console.log(`Smoke checks passed: ${requiredRoutes.length} route patterns, dual-user persistence, 14 mapped story images, automatic story reader with BGM, brand entry, implemented page map.`)
